@@ -1,0 +1,552 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>СпортЭфир PRD</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Rubik:wght@400;500;600&family=Unbounded:wght@500;700&display=swap">
+<style>
+/* Layout: поле-схема. Тёмно-зелёная «разметка» в шапке, дальше светлые секции с линиями поля как разделителями. */
+:root{
+  --bg:#f3f6ef; --surface:#ffffff; --fg:#14231a; --muted:#5a6b5f; --line:#d5dfd0;
+  --green:#0f6b3a; --green-ink:#ffffff; --hero:#0c4a2a; --hero-fg:#eaf5e6;
+  --yellow:#f2c230; --yellow-ink:#2a2200; --soft:#e4efdd;
+  --ok:#1f8a4c; --warn:#b7791f; --bad:#b83a3a;
+  --f-display:'Unbounded','Rubik',system-ui,sans-serif;
+  --f-body:'Rubik',system-ui,-apple-system,'Segoe UI',sans-serif;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#0d1710; --surface:#15231a; --fg:#e6efe3; --muted:#93a597; --line:#27392c;
+  --green:#4cc27e; --green-ink:#06210f; --hero:#0a2415; --hero-fg:#e6f3e2;
+  --yellow:#f2c230; --yellow-ink:#2a2200; --soft:#1b2e21;
+  --ok:#52c985; --warn:#e0a94a; --bad:#e57878; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#0d1710; --surface:#15231a; --fg:#e6efe3; --muted:#93a597; --line:#27392c;
+  --green:#4cc27e; --green-ink:#06210f; --hero:#0a2415; --hero-fg:#e6f3e2;
+  --yellow:#f2c230; --yellow-ink:#2a2200; --soft:#1b2e21;
+  --ok:#52c985; --warn:#e0a94a; --bad:#e57878; color-scheme:dark}
+
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;background:var(--bg);color:var(--fg);font:400 16px/1.6 var(--f-body)}
+@media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}*{transition:none!important}}
+a{color:inherit}
+:focus-visible{outline:3px solid var(--yellow);outline-offset:2px}
+.wrap{max-width:1040px;margin-inline:auto;padding-inline:20px}
+h1,h2,h3{font-family:var(--f-display);line-height:1.15;text-wrap:balance;margin:0}
+h2{font-size:clamp(1.35rem,3.2vw,1.9rem);font-weight:700}
+h3{font-size:1rem;font-weight:500}
+p{margin:0}
+.eyebrow{font:500 .75rem/1 var(--f-body);letter-spacing:.14em;text-transform:uppercase;color:var(--muted)}
+
+/* nav */
+.nav{position:sticky;top:0;z-index:5;background:var(--hero);color:var(--hero-fg)}
+.nav .wrap{display:flex;align-items:center;gap:16px;height:52px}
+.nav b{font-family:var(--f-display);font-size:.95rem;white-space:nowrap}
+.nav ul{display:flex;gap:4px;list-style:none;margin:0 0 0 auto;padding:0;overflow-x:auto;scrollbar-width:none}
+.nav a{display:block;padding:6px 10px;border-radius:99px;text-decoration:none;font-size:.85rem;white-space:nowrap;opacity:.85}
+.nav a:hover{background:rgba(255,255,255,.12);opacity:1}
+
+/* hero */
+.hero{background:var(--hero);color:var(--hero-fg);position:relative;overflow:hidden}
+.hero svg.pitch{position:absolute;inset:0;width:100%;height:100%;opacity:.5}
+.hero .wrap{position:relative;padding-block:56px 64px;display:grid;grid-template-columns:1.2fr 1fr;gap:40px;align-items:center}
+.hero h1{font-size:clamp(2rem,6vw,3.6rem);font-weight:700}
+.hero h1 span{color:var(--yellow)}
+.hero .lead{margin-top:18px;max-width:46ch;font-size:1.05rem;opacity:.92}
+.meta{display:flex;flex-wrap:wrap;gap:8px;margin-top:22px}
+.pill{display:inline-flex;align-items:center;gap:6px;padding:5px 12px;border-radius:99px;font-size:.8rem;font-weight:500;background:rgba(255,255,255,.12);color:var(--hero-fg)}
+.pill.y{background:var(--yellow);color:var(--yellow-ink)}
+
+/* phone mock */
+.phone{justify-self:center;width:min(290px,100%);background:var(--surface);color:var(--fg);border-radius:28px;padding:14px;box-shadow:0 18px 40px rgba(0,0,0,.35);border:6px solid #0a1a10}
+.phone .bar{display:flex;justify-content:space-between;font-size:.7rem;color:var(--muted);padding:0 4px 8px}
+.phone .search{background:var(--green);border-radius:16px;padding:12px}
+.phone .search div{background:var(--surface);color:var(--fg);border-radius:10px;padding:9px 12px;font-size:.85rem}
+.phone .chips{display:flex;gap:6px;margin:10px 0;flex-wrap:wrap}
+.chip{font-size:.72rem;padding:3px 10px;border-radius:99px;background:var(--soft);color:var(--fg)}
+.chip.on{background:var(--green);color:var(--green-ink)}
+.quick{display:grid;grid-template-columns:repeat(3,1fr);gap:6px}
+.quick span{font-size:.7rem;text-align:center;padding:8px 2px;border-radius:10px;font-weight:600;background:var(--yellow);color:var(--yellow-ink)}
+.src{display:flex;justify-content:space-between;align-items:center;margin-top:8px;padding:8px 10px;border:1px solid var(--line);border-radius:12px;font-size:.78rem}
+.src small{color:var(--muted);display:block;font-size:.68rem}
+.star{color:var(--yellow);font-size:1rem}
+
+/* sections */
+section{padding-block:56px;border-top:1px solid var(--line)}
+section:first-of-type{border-top:0}
+.sec-head{display:flex;flex-direction:column;gap:10px;margin-bottom:28px;max-width:62ch}
+.sec-head p{color:var(--muted)}
+
+/* problem → goal */
+.pg{display:grid;grid-template-columns:1fr auto 1fr;gap:16px;align-items:stretch}
+.box{background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:22px}
+.box.goal{background:var(--green);color:var(--green-ink);border-color:var(--green)}
+.box h3{margin-bottom:8px}
+.arrow{align-self:center;font-family:var(--f-display);font-size:1.6rem;color:var(--muted)}
+.big{display:flex;gap:10px;align-items:baseline;margin-top:14px;font-family:var(--f-display)}
+.big b{font-size:2.4rem;color:var(--yellow)}
+.box:not(.goal) .big b{color:var(--bad)}
+
+/* audience */
+.aud{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:16px}
+.interest{display:flex;flex-wrap:wrap;gap:8px;margin-top:18px}
+.interest .chip{font-size:.85rem;padding:6px 14px;background:var(--surface);border:1px solid var(--line)}
+
+/* flow */
+.flow{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:12px;counter-reset:s}
+.step{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:16px;position:relative}
+.step .tag{font:600 .7rem var(--f-body);letter-spacing:.1em;text-transform:uppercase;color:var(--green)}
+.step p{margin-top:8px;font-size:.92rem}
+.step.end{background:var(--soft)}
+.scen{display:grid;gap:10px;margin-top:28px}
+.scen details{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:0}
+.scen summary{cursor:pointer;padding:14px 16px;font-weight:500;display:flex;gap:12px;align-items:center;list-style:none}
+.scen summary::-webkit-details-marker{display:none}
+.scen summary i{font-style:normal;font-family:var(--f-display);font-size:.8rem;width:28px;height:28px;border-radius:50%;display:grid;place-items:center;background:var(--green);color:var(--green-ink);flex:none}
+.scen summary::after{content:'+';margin-left:auto;color:var(--muted);font-size:1.2rem}
+.scen details[open] summary::after{content:'−'}
+.scen details p{padding:0 16px 16px 56px;color:var(--muted)}
+
+/* features */
+.feat{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:16px}
+.feat .box ul{margin:10px 0 0;padding-left:18px;color:var(--muted)}
+.feat .box li+li{margin-top:6px}
+.sports{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}
+.seg{display:inline-flex;border:1px solid var(--line);border-radius:99px;overflow:hidden;margin-top:12px}
+.seg span{padding:6px 14px;font-size:.85rem}
+.seg span.on{background:var(--green);color:var(--green-ink)}
+
+/* catalog */
+.tools{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:18px}
+.tools button{font:500 .85rem var(--f-body);padding:8px 16px;border-radius:99px;border:1px solid var(--line);background:var(--surface);color:var(--fg);cursor:pointer}
+.tools button[aria-pressed="true"]{background:var(--green);color:var(--green-ink);border-color:var(--green)}
+.cat{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:12px}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:16px;display:flex;flex-direction:column;gap:8px;min-width:0}
+.card .top{display:flex;justify-content:space-between;gap:8px;align-items:center}
+.card h3{overflow-wrap:anywhere}
+.reg{font:600 .7rem var(--f-body);padding:3px 9px;border-radius:99px;letter-spacing:.06em}
+.reg.KZ{background:var(--yellow);color:var(--yellow-ink)}
+.reg.RU{background:var(--soft);color:var(--fg)}
+.reg.W{background:transparent;border:1px solid var(--line);color:var(--muted)}
+.card .type{font-size:.78rem;color:var(--green);font-weight:500}
+.card p{font-size:.88rem;color:var(--muted)}
+.card[hidden]{display:none}
+.count{margin-left:auto;color:var(--muted);font-size:.85rem;align-self:center}
+
+/* tips */
+.tips{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:16px}
+
+/* platforms */
+.plat{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:16px}
+.status{display:inline-block;font-size:.75rem;font-weight:600;padding:3px 10px;border-radius:99px;margin-bottom:10px}
+.status.ok{background:var(--soft);color:var(--ok)}
+.status.opt{background:transparent;border:1px solid var(--line);color:var(--muted)}
+.install{margin-top:20px;display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;align-items:center}
+.install .step{text-align:center;padding:12px}
+
+/* nfr + palette */
+.nfr{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px}
+.nfr .box{padding:16px}
+.nfr b{font-family:var(--f-display);font-size:1.25rem;display:block;margin-bottom:4px;color:var(--green)}
+.nfr small{color:var(--muted)}
+.design{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:16px}
+.sw{display:flex;gap:8px;margin-top:12px}
+.sw i{flex:1;height:44px;border-radius:10px;border:1px solid var(--line)}
+.type-demo{margin-top:12px;display:grid;gap:4px}
+.type-demo .d{font-family:var(--f-display);font-size:1.5rem;font-weight:700}
+
+/* limits vs roadmap */
+.limits{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:16px}
+.limits .box{border-left:4px solid var(--warn)}
+.road{list-style:none;margin:0;padding:0;position:relative;display:grid;gap:14px}
+.road::before{content:'';position:absolute;left:19px;top:8px;bottom:8px;width:2px;background:var(--line)}
+.road li{display:grid;grid-template-columns:40px 1fr;gap:16px;align-items:start}
+.road .v{width:40px;height:40px;border-radius:50%;background:var(--green);color:var(--green-ink);display:grid;place-items:center;font:700 .62rem var(--f-display);z-index:1}
+.road li.now .v{background:var(--yellow);color:var(--yellow-ink)}
+.road .box{padding:14px 18px}
+.road .box b{display:block;font-weight:600}
+.road .box span{color:var(--muted);font-size:.92rem}
+
+/* metrics */
+.metrics{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:16px}
+.metric .num{font-family:var(--f-display);font-size:2.4rem;font-weight:700;color:var(--green)}
+.meter{height:10px;border-radius:99px;background:var(--soft);margin-top:12px;overflow:hidden}
+.meter i{display:block;height:100%;background:var(--green);border-radius:99px}
+.metric small{color:var(--muted);display:block;margin-top:8px}
+
+/* risks */
+.risk{display:grid;gap:12px}
+.risk .row{display:grid;grid-template-columns:1fr 1.4fr;gap:0;background:var(--surface);border:1px solid var(--line);border-radius:14px;overflow:hidden}
+.risk .row>div{padding:16px 18px}
+.risk .row>div:first-child{background:var(--soft)}
+.risk .row small{display:block;margin-bottom:4px;font:600 .68rem var(--f-body);letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}
+
+footer{background:var(--hero);color:var(--hero-fg);padding-block:32px;font-size:.88rem}
+footer .wrap{display:flex;flex-wrap:wrap;gap:12px 32px;justify-content:space-between}
+footer p{max-width:60ch;opacity:.85}
+
+@media (max-width:760px){
+  .hero .wrap{grid-template-columns:1fr;padding-block:40px}
+  .pg{grid-template-columns:1fr}.arrow{transform:rotate(90deg);justify-self:center}
+  .design{grid-template-columns:1fr}
+  .risk .row{grid-template-columns:1fr}
+  .nav b{display:none}.nav ul{margin-left:0}
+  section{padding-block:40px}
+}
+</style>
+</head>
+<body>
+
+<header class="nav">
+  <div class="wrap">
+    <b>СпортЭфир</b>
+    <ul>
+      <li><a href="#why">Проблема</a></li>
+      <li><a href="#flow">Сценарии</a></li>
+      <li><a href="#features">Функции</a></li>
+      <li><a href="#catalog">Источники</a></li>
+      <li><a href="#platforms">Платформы</a></li>
+      <li><a href="#roadmap">Дорожная карта</a></li>
+      <li><a href="#risks">Риски</a></li>
+    </ul>
+  </div>
+</header>
+
+<div class="hero">
+  <svg class="pitch" viewBox="0 0 1000 500" preserveAspectRatio="xMidYMid slice" aria-hidden="true" fill="none" stroke="#fff" stroke-opacity=".16" stroke-width="2">
+    <rect x="40" y="40" width="920" height="420"/>
+    <line x1="500" y1="40" x2="500" y2="460"/>
+    <circle cx="500" cy="250" r="70"/>
+    <rect x="40" y="150" width="130" height="200"/>
+    <rect x="830" y="150" width="130" height="200"/>
+    <path d="M170 210 a50 50 0 0 1 0 80"/>
+    <path d="M830 210 a50 50 0 0 0 0 80"/>
+  </svg>
+  <div class="wrap">
+    <div>
+      <p class="eyebrow" style="color:var(--yellow)">PRD · версия 1.0</p>
+      <h1 style="margin-top:14px">Спорт<span>Эфир</span></h1>
+      <p class="lead">Сайт и приложение, которые за один–два клика приводят к бесплатной и официальной трансляции любого спортивного события.</p>
+      <div class="meta">
+        <span class="pill y">MVP реализован</span>
+        <span class="pill">Сайт + PWA</span>
+        <span class="pill">07.10.2026</span>
+        <span class="pill">Русский язык</span>
+      </div>
+    </div>
+    <div class="phone" role="img" aria-label="Макет экрана приложения: поиск, чипы видов спорта, быстрые кнопки и источники">
+      <div class="bar"><span>СпортЭфир</span><span>📍 Казахстан</span></div>
+      <div class="search"><div>Кайрат — Астана</div></div>
+      <div class="chips"><span class="chip on">Футбол</span><span class="chip">Хоккей</span><span class="chip">Бокс</span><span class="chip">ММА</span></div>
+      <div class="quick"><span>YouTube LIVE</span><span>Twitch</span><span>Google</span></div>
+      <div class="src"><div>Qazsport<small>ТВ онлайн · KZ</small></div><span class="star">★</span></div>
+      <div class="src"><div>Хабар<small>ТВ онлайн · KZ</small></div><span class="star" style="opacity:.3">★</span></div>
+      <div class="src"><div>FIFA+<small>Сайт · Мир</small></div><span class="star" style="opacity:.3">★</span></div>
+    </div>
+  </div>
+</div>
+
+<main>
+
+<section id="why">
+  <div class="wrap">
+    <div class="sec-head">
+      <p class="eyebrow">Проблема и цель</p>
+      <h2>От «хочу посмотреть» до эфира за 1–2 клика</h2>
+    </div>
+    <div class="pg">
+      <div class="box">
+        <h3>Проблема</h3>
+        <p>Чтобы найти, где бесплатно посмотреть матч, люди тратят время и часто попадают на пиратские сайты: эфир обрывается, а реклама бывает опасной.</p>
+        <div class="big"><b>много</b><span>кликов и поисков</span></div>
+      </div>
+      <div class="arrow" aria-hidden="true">→</div>
+      <div class="box goal">
+        <h3>Цель</h3>
+        <p>Сократить путь до работающей трансляции и вести только на легальные источники.</p>
+        <div class="big"><b>1–2</b><span>клика до эфира</span></div>
+      </div>
+    </div>
+
+    <div class="sec-head" style="margin-top:48px">
+      <p class="eyebrow">Аудитория</p>
+      <h2>Болельщики с телефоном в руках перед началом матча</h2>
+    </div>
+    <div class="aud">
+      <div class="box"><h3>Где</h3><p>Казахстан (основной регион), Россия и другие страны СНГ.</p></div>
+      <div class="box"><h3>Как смотрят</h3><p>В основном с телефона, часто прямо перед стартом события.</p></div>
+      <div class="box"><h3>Что любят</h3><p>Футбол, хоккей, бокс и ММА, теннис, зимние виды, шахматы, киберспорт.</p></div>
+    </div>
+    <div class="interest" aria-label="Интересы аудитории">
+      <span class="chip">КПЛ</span><span class="chip">Еврокубки</span><span class="chip">Барыс</span><span class="chip">КХЛ</span><span class="chip">UFC и NAIZA</span><span class="chip">Теннис</span><span class="chip">CS2</span><span class="chip">Шахматы</span>
+    </div>
+  </div>
+</section>
+
+<section id="flow">
+  <div class="wrap">
+    <div class="sec-head">
+      <p class="eyebrow">Ключевой путь</p>
+      <h2>Как пользователь находит трансляцию</h2>
+      <p>Запрос превращается в быстрые ссылки поиска и в список легальных источников региона.</p>
+    </div>
+    <div class="flow">
+      <div class="step"><span class="tag">Ввод</span><p>Команда, боец, турнир или вид спорта</p></div>
+      <div class="step"><span class="tag">Определение</span><p>Вид спорта по словарю ключевых слов</p></div>
+      <div class="step"><span class="tag">Быстрые кнопки</span><p>YouTube LIVE, Twitch, Google «прямая трансляция бесплатно официально»</p></div>
+      <div class="step"><span class="tag">Источники</span><p>Каталог с учётом региона, сначала местные</p></div>
+      <div class="step end"><span class="tag">Результат</span><p>Эфир у правообладателя за 1–2 клика</p></div>
+    </div>
+
+    <div class="scen">
+      <details open>
+        <summary><i>1</i>Ввести «Кайрат — Астана»</summary>
+        <p>Определён вид спорта «Футбол», показаны кнопки LIVE-поиска и источники: Qazsport, Хабар, FIFA+ и другие.</p>
+      </details>
+      <details>
+        <summary><i>2</i>Выбрать чип «Хоккей»</summary>
+        <p>Список источников по хоккею для выбранного региона.</p>
+      </details>
+      <details>
+        <summary><i>3</i>Переключить регион на «Россия»</summary>
+        <p>Показаны российские и мировые источники, казахстанские скрыты.</p>
+      </details>
+      <details>
+        <summary><i>4</i>Добавить источник в избранное ★</summary>
+        <p>Источник появляется в блоке «Избранное» и сохраняется на устройстве.</p>
+      </details>
+      <details>
+        <summary><i>5</i>Открыть приложение на телефоне без сети</summary>
+        <p>Каталог источников доступен офлайн.</p>
+      </details>
+    </div>
+  </div>
+</section>
+
+<section id="features">
+  <div class="wrap">
+    <div class="sec-head">
+      <p class="eyebrow">Функциональные требования</p>
+      <h2>Что умеет продукт</h2>
+    </div>
+    <div class="feat">
+      <div class="box">
+        <h3>Поиск события</h3>
+        <ul>
+          <li>Подсказки-примеры: «Кайрат — Астана», «Барыс КХЛ», «CS2 мейджор», «Шахматы»</li>
+          <li>Автоопределение вида спорта по словарю: команды, лиги, спортсмены, турниры</li>
+          <li>Три быстрые ссылки: YouTube только LIVE, Twitch, Google</li>
+        </ul>
+      </div>
+      <div class="box">
+        <h3>Регион</h3>
+        <div class="seg" role="img" aria-label="Переключатель региона"><span class="on">Казахстан</span><span>Россия</span><span>Весь мир</span></div>
+        <ul>
+          <li>По умолчанию Казахстан</li>
+          <li>Сначала источники региона, затем мировые</li>
+          <li>Выбор запоминается</li>
+        </ul>
+      </div>
+      <div class="box">
+        <h3>Избранное</h3>
+        <ul>
+          <li>Добавление и удаление звёздочкой ★</li>
+          <li>Хранится на устройстве (localStorage)</li>
+          <li>Регистрация не нужна</li>
+        </ul>
+      </div>
+      <div class="box" style="grid-column:1/-1">
+        <h3>Фильтр по видам спорта · 15 категорий</h3>
+        <div class="sports">
+          <span class="chip on">Все виды</span><span class="chip">Футбол</span><span class="chip">Хоккей</span><span class="chip">Бокс</span><span class="chip">ММА</span><span class="chip">Теннис</span><span class="chip">Баскетбол</span><span class="chip">Волейбол</span><span class="chip">Зимние</span><span class="chip">Борьба и дзюдо</span><span class="chip">Олимпийские</span><span class="chip">Автоспорт</span><span class="chip">Велоспорт</span><span class="chip">Шахматы</span><span class="chip">Киберспорт</span><span class="chip">Экстрим</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="catalog">
+  <div class="wrap">
+    <div class="sec-head">
+      <p class="eyebrow">Каталог источников MVP</p>
+      <h2>15 легальных источников</h2>
+      <p>Карточка: название, регион, тип, описание, виды спорта, кнопки «Смотреть» и «В избранное». Отфильтруйте по региону.</p>
+    </div>
+    <div class="tools" role="group" aria-label="Фильтр по региону">
+      <button type="button" data-r="all" aria-pressed="true">Все</button>
+      <button type="button" data-r="KZ" aria-pressed="false">Казахстан</button>
+      <button type="button" data-r="RU" aria-pressed="false">Россия</button>
+      <button type="button" data-r="W" aria-pressed="false">Весь мир</button>
+      <span class="count" id="count" aria-live="polite"></span>
+    </div>
+    <div class="cat" id="cat"></div>
+  </div>
+</section>
+
+<section id="tips">
+  <div class="wrap">
+    <div class="sec-head">
+      <p class="eyebrow">Подсказки и прозрачность</p>
+      <h2>Помогаем найти эфир и не попасть на пиратов</h2>
+    </div>
+    <div class="tips">
+      <div class="box"><h3>Не видно эфира?</h3><p>Проверьте программу канала и переключите регион.</p></div>
+      <div class="box"><h3>Ищите LIVE</h3><p>Быстрая кнопка YouTube показывает только прямые эфиры.</p></div>
+      <div class="box"><h3>Без пиратства</h3><p>Только официальные и бесплатные источники. Сервис сам видео не транслирует.</p></div>
+    </div>
+  </div>
+</section>
+
+<section id="platforms">
+  <div class="wrap">
+    <div class="sec-head">
+      <p class="eyebrow">Платформы и поставка</p>
+      <h2>Одна страница работает везде</h2>
+    </div>
+    <div class="plat">
+      <div class="box"><span class="status ok">Готово</span><h3>Веб</h3><p>Опубликованная страница (Artifact на claude.ai).</p></div>
+      <div class="box"><span class="status ok">Готово</span><h3>Android / iOS</h3><p>PWA: index.html, manifest, service worker, иконки. Архив SportEfir-app.zip.</p></div>
+      <div class="box"><span class="status opt">Опционально</span><h3>Google Play</h3><p>Упаковка PWA через PWABuilder (TWA).</p></div>
+    </div>
+    <div class="install">
+      <div class="step"><span class="tag">1</span><p>Разместить папку на HTTPS (Netlify Drop, GitHub Pages)</p></div>
+      <div class="step"><span class="tag">2a</span><p>Android: «Установить приложение»</p></div>
+      <div class="step"><span class="tag">2b</span><p>iPhone: «На экран Домой»</p></div>
+    </div>
+  </div>
+</section>
+
+<section id="quality">
+  <div class="wrap">
+    <div class="sec-head">
+      <p class="eyebrow">Нефункциональные требования и дизайн</p>
+      <h2>Быстро, доступно, в стиле спортивного поля</h2>
+    </div>
+    <div class="nfr">
+      <div class="box"><b>360 px</b><p>Адаптивная вёрстка без горизонтальной прокрутки</p></div>
+      <div class="box"><b>&lt; 1 с</b><p>Загрузка на 4G, одна страница без бэкенда</p></div>
+      <div class="box"><b>2 темы</b><p>Светлая и тёмная по системной настройке</p></div>
+      <div class="box"><b>A11y</b><p>Видимый фокус, aria-метки, prefers-reduced-motion</p></div>
+      <div class="box"><b>PWA</b><p>Service worker кэширует приложение, работает офлайн</p></div>
+      <div class="box"><b>RU</b><p>Язык интерфейса: русский</p></div>
+    </div>
+    <div class="design">
+      <div class="box">
+        <h3>Цвета</h3>
+        <p style="color:var(--muted);font-size:.9rem;margin-top:6px">Зелёный основной, жёлтый акцент, скруглённые формы.</p>
+        <div class="sw" aria-hidden="true"><i style="background:#0c4a2a"></i><i style="background:#0f6b3a"></i><i style="background:#4cc27e"></i><i style="background:#f2c230"></i><i style="background:#e4efdd"></i></div>
+      </div>
+      <div class="box">
+        <h3>Шрифты</h3>
+        <div class="type-demo"><span class="d">Unbounded</span><span>Rubik. Основной текст интерфейса.</span><small style="color:var(--muted)">Оба шрифта с кириллицей</small></div>
+      </div>
+    </div>
+    <p style="margin-top:16px;color:var(--muted);font-size:.92rem">Структура экрана: шапка с регионом → зелёный блок с поиском → чипы видов спорта → результаты и быстрые кнопки → избранное → каталог → подсказки → футер.</p>
+  </div>
+</section>
+
+<section id="metrics">
+  <div class="wrap">
+    <div class="sec-head">
+      <p class="eyebrow">Метрики успеха</p>
+      <h2>Как поймём, что продукт работает</h2>
+    </div>
+    <div class="metrics">
+      <div class="box metric"><div class="num">&lt; 15 с</div><p>Медиана времени до первого клика на трансляцию</p></div>
+      <div class="box metric"><div class="num">&gt; 60 %</div><p>Поисков с кликом по источнику или быстрой кнопке</p><div class="meter"><i style="width:60%"></i></div></div>
+      <div class="box metric"><div class="num">&gt; 70 %</div><p>Распознанных запросов, вид спорта определён</p><div class="meter"><i style="width:70%"></i></div></div>
+      <div class="box metric"><div class="num">7 дней</div><p>Установки PWA и возвраты в течение недели</p></div>
+    </div>
+  </div>
+</section>
+
+<section id="roadmap">
+  <div class="wrap">
+    <div class="sec-head">
+      <p class="eyebrow">Ограничения и дорожная карта</p>
+      <h2>Что в MVP не вошло и что дальше</h2>
+    </div>
+    <div class="limits">
+      <div class="box"><h3>Нет живого расписания</h3><p>Опубликованная страница не может обращаться к внешним API.</p></div>
+      <div class="box"><h3>Каталог вручную</h3><p>Источники составлены вручную и требуют периодической проверки.</p></div>
+      <div class="box"><h3>Простое определение</h3><p>Вид спорта определяется по словарю, без ИИ и нечёткого поиска.</p></div>
+    </div>
+    <ol class="road" style="margin-top:36px">
+      <li class="now"><span class="v">MVP</span><div class="box"><b>Сейчас</b><span>Поиск, каталог, регионы, избранное, PWA</span></div></li>
+      <li><span class="v">1.1</span><div class="box"><b>Живое расписание</b><span>Открытый API (например, TheSportsDB): «Сегодня», «Скоро», время по Алматы</span></div></li>
+      <li><span class="v">1.2</span><div class="box"><b>Напоминания</b><span>Push-уведомления PWA о начале матча</span></div></li>
+      <li><span class="v">1.3</span><div class="box"><b>Подписки</b><span>Подписка на команды, персональная лента событий</span></div></li>
+      <li><span class="v">1.4</span><div class="box"><b>Казахский язык</b><span>Интерфейс на казахском</span></div></li>
+      <li><span class="v">2.0</span><div class="box"><b>Админ-панель</b><span>Редактирование источников, проверка доступности ссылок</span></div></li>
+      <li><span class="v">2.1</span><div class="box"><b>Магазины приложений</b><span>Публикация в Google Play и App Store</span></div></li>
+    </ol>
+  </div>
+</section>
+
+<section id="risks">
+  <div class="wrap">
+    <div class="sec-head">
+      <p class="eyebrow">Риски</p>
+      <h2>Что может пойти не так и что с этим делать</h2>
+    </div>
+    <div class="risk">
+      <div class="row"><div><small>Риск</small>Права на трансляцию меняются</div><div><small>Митигирование</small>Регулярная ревизия каталога, подсказка проверять программу канала</div></div>
+      <div class="row"><div><small>Риск</small>Геоблокировки источников</div><div><small>Митигирование</small>Переключатель региона, LIVE-поиск как запасной вариант</div></div>
+      <div class="row"><div><small>Риск</small>Ошибки автоопределения вида спорта</div><div><small>Митигирование</small>Быстрые кнопки работают по исходному запросу независимо от определения</div></div>
+    </div>
+  </div>
+</section>
+
+</main>
+
+<footer>
+  <div class="wrap">
+    <p><b>Правовые принципы.</b> Только официальные и бесплатные источники, без пиратских ссылок. Сервис не хранит и не ретранслирует видео, а ведёт к правообладателям. Доступность эфиров зависит от региона и прав.</p>
+    <p>СпортЭфир · PRD v1.0 · 07.10.2026</p>
+  </div>
+</footer>
+
+<script>
+var SOURCES=[
+ {n:'Qazsport',r:'KZ',t:'ТВ онлайн',s:'Футбол, хоккей, бокс, борьба, волейбол и др.'},
+ {n:'Хабар',r:'KZ',t:'ТВ онлайн',s:'Сборные, Олимпиады, бокс'},
+ {n:'Qazaqstan',r:'KZ',t:'ТВ онлайн',s:'Олимпийские, национальные виды'},
+ {n:'NAIZA FC',r:'KZ',t:'YouTube',s:'ММА'},
+ {n:'Матч ТВ',r:'RU',t:'ТВ онлайн',s:'Большинство видов'},
+ {n:'Olympics.com',r:'W',t:'Сайт',s:'Олимпийские, зимние'},
+ {n:'FIFA+',r:'W',t:'Сайт',s:'Футбол'},
+ {n:'YouTube: лиги и федерации',r:'W',t:'YouTube',s:'Разные виды'},
+ {n:'Volleyball World',r:'W',t:'YouTube',s:'Волейбол'},
+ {n:'Twitch',r:'W',t:'Стриминг',s:'Киберспорт, шахматы'},
+ {n:'YouTube: киберспорт',r:'W',t:'YouTube',s:'Киберспорт'},
+ {n:'Lichess TV, Chess.com TV, FIDE',r:'W',t:'Сайт / YouTube',s:'Шахматы'},
+ {n:'Red Bull',r:'W',t:'Сайт',s:'Экстрим, моторы'},
+ {n:'UFC',r:'W',t:'YouTube',s:'ММА: взвешивания, ранние бои'},
+ {n:'World Athletics, марафоны',r:'W',t:'YouTube',s:'Лёгкая атлетика'}
+];
+var LBL={KZ:'KZ',RU:'RU',W:'Мир'};
+var cat=document.getElementById('cat'),count=document.getElementById('count');
+SOURCES.forEach(function(x){
+  var d=document.createElement('article');d.className='card';d.dataset.r=x.r;
+  d.innerHTML='<div class="top"><h3></h3><span class="reg '+x.r+'">'+LBL[x.r]+'</span></div><span class="type"></span><p></p>';
+  d.querySelector('h3').textContent=x.n;
+  d.querySelector('.type').textContent=x.t;
+  d.querySelector('p').textContent=x.s;
+  cat.appendChild(d);
+});
+var btns=document.querySelectorAll('.tools button');
+function apply(r){
+  var n=0;
+  cat.querySelectorAll('.card').forEach(function(c){
+    var show=r==='all'||c.dataset.r===r||(r!=='W'&&r!=='all'&&c.dataset.r==='W');
+    c.hidden=!show;if(show)n++;
+  });
+  btns.forEach(function(b){b.setAttribute('aria-pressed',String(b.dataset.r===r))});
+  count.textContent='Показано: '+n;
+}
+btns.forEach(function(b){b.addEventListener('click',function(){apply(b.dataset.r)})});
+apply('all');
+</script>
+</body>
+</html>
